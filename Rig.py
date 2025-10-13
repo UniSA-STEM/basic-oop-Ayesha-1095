@@ -72,3 +72,26 @@ class Rig:
             print(f'{self.__name} repaired successfully.')
         else:
             print('No repair needed')  # Display a message if not damaged
+
+    def upgrade_rig(self):
+        """
+        Increases the rig's upgrade level when a Hardware Patch is used.
+        Upgrading affects how much damage the rig can take in battles
+        and the amount of assets it can store.
+        """
+        self.__upgrade_level += 1  # Increase the upgrade level by 1
+        print(f'{self.__name} upgraded to level {self.__upgrade_level}')  # Show the new level
+
+    def take_hit(self):
+        """
+         Each hit increases damage by 1.
+        If damage reaches 2 (for a level 0 rig), the rig becomes broken.
+        """
+        self.__damage_counter += 1  # Increase damage counter by 1
+
+        # Check if rig has taken enough damage to be broken
+        if self.__damage_counter >= 2:
+            self.__broken_state = True  # Set the rig as broken
+            print(f'{self.__name} has been broken!')
+        else:
+            print(f'{self.__name} took a hit. Damage counter: {self.__damage_counter}')
