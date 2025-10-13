@@ -16,10 +16,10 @@ class Hacker:
     and exceeding a threshold may restrict certain abilities.
 
     Attributes:
-        name (str): The hacker's name.
-        inventory (list): A list of digital assets the hacker owns.
-        rig (Rig): The hacker's associated rig, which can be upgraded.
-        trace_level (int): The hacker's exposure level to being traced.
+        __name (str): The hacker's name.
+        __inventory (list): A list of digital assets the hacker owns.
+        __rig (Rig): The hacker's associated rig, which can be upgraded.
+        __trace_level (int): The hacker's exposure level to being traced.
     """
 
     def __init__(self, name, rig=None):
@@ -31,7 +31,28 @@ class Hacker:
             name (str): The hacker's chosen name.
             rig (Rig): The hacker's rig, if they already have one. Default is None.
         """
-        self.name = name
-        self.inventory = ['CryptoToken']  # Hacker starts with one CryptoToken in their inventory
-        self.rig = rig  # Initially, the hacker has no rig (None)
-        self.trace_level = 0  # Starts at 0
+        self.__name = name
+        self.__inventory = ['CryptoToken']  # Hacker starts with one CryptoToken in their inventory
+        self.__rig = rig  # Initially, the hacker has no rig (None)
+        self.__trace_level = 0  # Starts at 0
+
+    # ===================================== Getter methods ================================================
+    def get_name(self):
+        return self.__name
+
+    def get_inventory(self):
+        return self.__inventory
+
+    def get_rig(self):
+        return self.__rig
+
+    def get_trace_level(self):
+        return self.__trace_level
+
+    # ==================================== Properties ======================================================
+    name = property(get_name)
+    inventory = property(get_inventory)
+    rig = property(get_rig)
+    trace_level = property(get_trace_level)
+
+    # ==================================== Methods ==========================================================
