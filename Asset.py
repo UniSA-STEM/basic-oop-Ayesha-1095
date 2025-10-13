@@ -41,3 +41,16 @@ class Asset:
     name = property(get_name)
     description = property(get_description)
     encrypted = property(get_encrypted)
+
+    def __str__(self):
+        """
+        Return a formatted string of the asset.
+        If the asset is encrypted, show [Encrypted] at the end of the string.
+        """
+        # Check if the asset is encrypted
+        if self.__encrypted:
+            # Return name, description, and [Encrypted] label
+            return f'{self.__name}: {self.__description} [Encrypted]'
+        else:
+            # Return just name and description, if not encrypted
+            return f'{self.__name}: {self.__description}'
