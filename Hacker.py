@@ -56,3 +56,21 @@ class Hacker:
     trace_level = property(get_trace_level)
 
     # ==================================== Methods ==========================================================
+    def acquire_a_rig(self, rig=None):
+        """
+        This method allows the hacker to get a rig, which costs one CryptoToken.
+        If the acquisition is successful, it will display a message announcing the rig's activation.
+        """
+        # If hacker already has a rig, display a message
+        if self.__rig:
+            print('Already have a rig')
+
+        # If a CryptoToken exists in inventory, use it to acquire the rig
+        elif 'CryptoToken' in self.__inventory:
+            self.__inventory.remove('CryptoToken')  # Remove one CryptoToken
+            self.__rig = rig  # Assign the passed in rig (or None if not provided)
+            print('Rig activated')
+
+        # If no CryptoToken is found, display a message
+        else:
+            print('No CryptoToken in the inventory')
