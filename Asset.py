@@ -14,15 +14,30 @@ class Asset:
     """
     Represent a digital asset, such as CryptoToken, Data Spike, or Security Chip.
     Attributes:
-        name (str): The name of the asset.
-        description (str): A short explanation of what the asset does.
-        encrypted (bool): True if the asset is encrypted, False otherwise.
+        __name (str): The name of the asset.
+        __description (str): A short explanation of what the asset does.
+        __encrypted (bool): True if the asset is encrypted, False otherwise.
     """
 
     def __init__(self, name, description, encrypted=False):
         """
         Initialize an Asset object with its name and description, and encryption status.
         """
-        self.name = name
-        self.description = description
-        self.encrypted = encrypted  # False by default (not encrypted)
+        self.__name = name
+        self.__description = description
+        self.__encrypted = encrypted  # False by default (not encrypted)
+
+    # ============================= Getter methods ===========================================
+    def get_name(self):
+        return self.__name
+
+    def get_description(self):
+        return self.__description
+
+    def get_encrypted(self):
+        return self.__encrypted
+
+    # ============================= Properties ==============================================
+    name = property(get_name)
+    description = property(get_description)
+    encrypted = property(get_encrypted)
