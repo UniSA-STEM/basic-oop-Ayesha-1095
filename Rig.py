@@ -9,6 +9,7 @@ This is my own work as defined by the University's Academic Misconduct Policy.
 import random
 
 from Asset import Asset
+from Hacker import Hacker
 
 
 class Rig:
@@ -126,3 +127,57 @@ class Rig:
 
         # Print a message to confirm
         print(f'Rig generated asset: {asset.name}')
+
+    def store_asset(self, hacker, asset):
+        """
+        Store an asset from the hacker's inventory into the rig.
+
+        This method transfers a specified asset from a hacker's inventory to the rig's storage,
+        but only if the asset is not encrypted. Encrypted assets cannot be stored until decrypted.
+
+        Args:
+            hacker (Hacker): The hacker who owns the asset.
+            asset (Asset): The asset object to be transferred.
+        """
+        # Check if the hacker actually has this asset in their inventory
+        if asset in hacker.inventory:
+            # Only allow storing if the asset is not encrypted
+            if not asset.encrypted:
+                hacker.inventory.remove(asset)  # Remove asset from hacker inventory
+                self.__storage.append(asset)  # Add asset to rig storage
+                print(f'{asset.name} stored in rig!')
+            else:
+                # Display a message if asset is encrypted that it cannot be transferred
+                print('Cannot store encrypted asset!')
+        else:
+            # Display a message if Hacker doesn't have this asset
+            print(f'Hacker does not have {asset.name} asset!')
+
+    def release_asset(self, hacker, asset):
+        """
+        Release an asset from the rig's storage to the hacker's inventory.
+
+        This method transfers a specified asset from a rig's storage to a hacker's inventory
+        but only if the asset is not encrypted. Encrypted assets cannot be released until decrypted.
+        Args:
+            hacker (Hacker): The hacker who will receive the asset.
+            asset (Asset): The asset object to be transferred.
+        """
+        # Check if the asset exists in the rig's storage
+        if asset in self.__storage:
+            # Only allow releasing if the asset is not encrypted
+            if not asset.encrypted:
+                # Ensure the hacker does not already have this asset (avoid duplicates)
+                if asset not in hacker.inventory:
+                    self.__storage.remove(asset)  # Remove asset from rig storage
+                    hacker.inventory.append(asset)  # Add asset to hacker inventory
+                    print(f'{asset.name} released to hacker!')  # Confirm the transfer
+                else:
+                    # Display a message if hacker already has this asset
+                    print(f'Hacker already has {asset.name} in inventory!')
+            else:
+                # Display message if asset is encrypted
+                print('Cannot release encrypted asset!')
+        else:
+            # Display message if the rig does not have the asset
+            print(f'Rig does not have {asset.name}!')
