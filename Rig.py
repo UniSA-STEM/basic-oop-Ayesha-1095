@@ -6,6 +6,9 @@ ID: 110481368
 Username: SIDAY032
 This is my own work as defined by the University's Academic Misconduct Policy.
 """
+import random
+
+from Asset import Asset
 
 
 class Rig:
@@ -30,7 +33,11 @@ class Rig:
         broken state, and upgrade level.
         """
         self.__name = name
-        self.__storage = ['Data Spike', 'Data Spike', 'Removable Drive']  # Starting assets
+        self.__storage = [
+            Asset('Data Spike', 'Used in battles'),
+            Asset('Data Spike', 'Used in battles'),
+            Asset('Removable Drive', 'Used for extraction of assets')
+        ]  # Starting assets
         self.__damage_counter = damage_counter  # Tracks rig damage
         self.__broken_state = broken_state  # True if broken
         self.__upgrade_level = upgrade_level  # Upgrade level of rig
@@ -59,7 +66,7 @@ class Rig:
     upgrade_level = property(get_upgrade_level)
 
     # ============================= Methods ==================================================
-    def repaired_damage(self):
+    def repair_damage(self):
         """
         Repairs the rig if it has any damage.
         Reset damage_counter to 0 and broken_state to False.
@@ -95,3 +102,27 @@ class Rig:
             print(f'{self.__name} has been broken!')
         else:
             print(f'{self.__name} took a hit. Damage counter: {self.__damage_counter}')
+
+    def generate_asset(self):
+        """
+        Generates a new asset randomly and adds it to the rig's storage.
+
+        The rig does not control the type of asset generated.
+        Every time this method is called, it will pick one asset randomly
+        from the possible assets list and store it in the rig's storage.
+        """
+        # The list of possible Asset object the rig can generate
+        possible_assets = [
+            Asset('Data Spike', 'Used in battles'),
+            Asset('Removable Drive', 'Used for extraction of assets'),
+            Asset('Security Chip', 'Used to encrypt or decrypt assets')
+        ]
+
+        # Select randomly one asset from the possible assets list
+        asset = random.choice(possible_assets)
+
+        # Add the new asset to the rig's storage
+        self.__storage.append(asset)
+
+        # Print a message to confirm
+        print(f'Rig generated asset: {asset.name}')
