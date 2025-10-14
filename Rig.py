@@ -28,7 +28,7 @@ class Rig:
         __upgrade_level (int): The upgrade level applied to the rig.
     """
 
-    def __init__(self, name, damage_counter=0, broken_state=False, upgrade_level=0):
+    def __init__(self, name: str, damage_counter: int = 0, broken_state: bool = False, upgrade_level: int = 0) -> None:
         """
         Initialize a Rig object with its name, storage, damage counter,
         broken state, and upgrade level.
@@ -44,19 +44,19 @@ class Rig:
         self.__upgrade_level = upgrade_level  # Upgrade level of rig
 
     # ======================= Getter methods ===============================================
-    def get_name(self):
+    def get_name(self) -> str:
         return self.__name
 
-    def get_storage(self):
+    def get_storage(self) -> list:
         return self.__storage
 
-    def get_damage_counter(self):
+    def get_damage_counter(self) -> int:
         return self.__damage_counter
 
-    def get_broken_state(self):
+    def get_broken_state(self) -> bool:
         return self.__broken_state
 
-    def get_upgrade_level(self):
+    def get_upgrade_level(self) -> int:
         return self.__upgrade_level
 
     # ============================ Properties ===============================================
@@ -67,7 +67,7 @@ class Rig:
     upgrade_level = property(get_upgrade_level)
 
     # ============================= Methods ==================================================
-    def repair_damage(self):
+    def repair_damage(self) -> None:
         """
         Repairs the rig if it has any damage.
         Reset damage_counter to 0 and broken_state to False.
@@ -81,7 +81,7 @@ class Rig:
         else:
             print('No repair needed')  # Display a message if not damaged
 
-    def upgrade_rig(self):
+    def upgrade_rig(self) -> None:
         """
         Increases the rig's upgrade level when a Hardware Patch is used.
         Upgrading affects how much damage the rig can take in battles
@@ -90,7 +90,7 @@ class Rig:
         self.__upgrade_level += 1  # Increase the upgrade level by 1
         print(f'{self.__name} upgraded to level {self.__upgrade_level}')  # Show the new level
 
-    def take_hit(self):
+    def take_hit(self) -> None:
         """
         Each hit increases damage by 1.
         The number of hits a rig can take before breaking depends on its upgrade level.
@@ -109,7 +109,7 @@ class Rig:
         else:
             print(f'{self.__name} took a hit {self.__damage_counter}/{max_hits}')
 
-    def generate_asset(self):
+    def generate_asset(self) -> None:
         """
         Generates a new asset randomly and adds it to the rig's storage.
 
@@ -133,19 +133,26 @@ class Rig:
         # Print a message to confirm
         print(f'Rig generated asset: {asset.name}')
 
-    def store_asset(self, hacker, asset):
+    def store_asset(self, hacker: Hacker, asset: Asset) -> None:
         """
         Store an asset from the hacker's inventory into the rig.
 
         This method transfers a specified asset from a hacker's inventory to the rig's storage,
         but only if the asset is not encrypted. Encrypted assets cannot be stored until decrypted.
+        The method also validates that both the hacker and asset are valid objects.
 
         Args:
             hacker (Hacker): The hacker who owns the asset.
             asset (Asset): The asset object to be transferred.
         """
+        # Validate if hacker is an instance of Hacker
+        if not isinstance(hacker, Hacker):
+            print(f'Invalid hacker object!')
+        # Validate if asset is an instance of Asset
+        elif not isinstance(asset, Asset):
+            print(f'Invalid asset object!')
         # Check if the hacker actually has this asset in their inventory
-        if asset in hacker.inventory:
+        elif asset in hacker.inventory:
             # Only allow storing if the asset is not encrypted
             if not asset.encrypted:
                 hacker.inventory.remove(asset)  # Remove asset from hacker inventory
@@ -158,18 +165,26 @@ class Rig:
             # Display a message if Hacker doesn't have this asset
             print(f'Hacker does not have {asset.name} asset!')
 
-    def release_asset(self, hacker, asset):
+    def release_asset(self, hacker: Hacker, asset: Asset) -> None:
         """
         Release an asset from the rig's storage to the hacker's inventory.
 
         This method transfers a specified asset from a rig's storage to a hacker's inventory
         but only if the asset is not encrypted. Encrypted assets cannot be released until decrypted.
+        The method also validates that both the hacker and asset are valid objects.
+
         Args:
             hacker (Hacker): The hacker who will receive the asset.
             asset (Asset): The asset object to be transferred.
         """
+        # Validate if hacker is an instance of Hacker
+        if not isinstance(hacker, Hacker):
+            print('Invalid hacker object!')
+        # Validate if asset is an instance of Asset
+        elif not isinstance(asset, Asset):
+            print('Invalid asset object!')
         # Check if the asset exists in the rig's storage
-        if asset in self.__storage:
+        elif asset in self.__storage:
             # Only allow releasing if the asset is not encrypted
             if not asset.encrypted:
                 # Ensure the hacker does not already have this asset (avoid duplicates)
@@ -187,7 +202,7 @@ class Rig:
             # Display message if the rig does not have the asset
             print(f'Rig does not have {asset.name}!')
 
-    def get_condition(self):
+    def get_condition(self) -> str:
         """
         Returns the current condition of the rig as a descriptive string.
 
