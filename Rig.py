@@ -92,17 +92,22 @@ class Rig:
 
     def take_hit(self):
         """
-         Each hit increases damage by 1.
-        If damage reaches 2 (for a level 0 rig), the rig becomes broken.
+        Each hit increases damage by 1.
+        The number of hits a rig can take before breaking depends on its upgrade level.
+         For example:
+            Level 0 = breaks after 2 hits
+            Level 1 = breaks after 3 hits
+            Level 2 = breaks after 4 hits, etc.
         """
         self.__damage_counter += 1  # Increase damage counter by 1
+        max_hits = 2 + self.__upgrade_level  # Calculate limit based on level
 
         # Check if rig has taken enough damage to be broken
-        if self.__damage_counter >= 2:
+        if self.__damage_counter >= max_hits:
             self.__broken_state = True  # Set the rig as broken
             print(f'{self.__name} has been broken!')
         else:
-            print(f'{self.__name} took a hit. Damage counter: {self.__damage_counter}')
+            print(f'{self.__name} took a hit {self.__damage_counter}/{max_hits}')
 
     def generate_asset(self):
         """
@@ -181,3 +186,56 @@ class Rig:
         else:
             # Display message if the rig does not have the asset
             print(f'Rig does not have {asset.name}!')
+
+    def get_condition(self):
+        """
+        Returns the current condition of the rig as a descriptive string.
+
+        The condition depends on the rig's damage counter and upgrade level:
+        - Broken if the rig is flagged as broken or the damage counter exceeds its limit.
+        - Pristine if the rig has no damage.
+        - Damaged for any other case where some damage exists but the rig is still operational.
+
+        Returns:
+            str: A string representing the rig's condition with its upgrade level included.
+        """
+        # Maximum hits the rig can take before breaking, depends on upgrade level
+        max_hits = 2 + self.__upgrade_level
+        # Check if rig is broken or has reached/exceeded max hits
+        if self.__broken_state or self.__damage_counter >= max_hits:
+            return f'Broken (Level {self.__upgrade_level})'
+        # Check if rig has no damage
+        elif self.__damage_counter == 0:
+            return f'Pristine (Level {self.__upgrade_level})'
+        # Otherwise, rig has some damage but is still operational
+        else:
+            return f'Damaged (Level {self.__upgrade_level})'
+
+    def __str__(self):
+        """
+        Returns a string representation of the rig, including its name,
+        condition, upgrade level, and stored assets.
+        Returns:
+            str: A multi-line string describing the rig's status and contents.
+        """
+        # Create a list to store asset names
+        asset_names = []
+
+        # Loop through each asset in storage and get its name
+        for asset in self.__storage:
+            asset_names.append(asset.name)
+
+        # Check if storage is empty
+        if len(asset_names) == 0:
+            asset_str = 'No assets available'
+        else:
+            # Join the names with commas for display
+            asset_str = ', '.join(asset_names)
+
+        # Return the formatting string
+        return (
+            f'Rig Name: {self.__name}\n'
+            f'Condition: {self.get_condition()}\n'
+            f'Upgrade Level: {self.__upgrade_level}\n'
+            f'Stored Assets: {asset_str}\n'
+        )
