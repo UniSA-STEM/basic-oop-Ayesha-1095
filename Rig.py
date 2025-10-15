@@ -9,7 +9,6 @@ This is my own work as defined by the University's Academic Misconduct Policy.
 import random
 
 from Asset import Asset
-from Hacker import Hacker
 
 
 class Rig:
@@ -133,23 +132,20 @@ class Rig:
         # Print a message to confirm
         print(f'Rig generated asset: {asset.name}')
 
-    def store_asset(self, hacker: Hacker, asset: Asset) -> None:
+    def store_asset(self, hacker, asset: Asset) -> None:
         """
         Store an asset from the hacker's inventory into the rig.
 
         This method transfers a specified asset from a hacker's inventory to the rig's storage,
         but only if the asset is not encrypted. Encrypted assets cannot be stored until decrypted.
-        The method also validates that both the hacker and asset are valid objects.
+        The method also validates that the asset are valid objects.
 
         Args:
             hacker (Hacker): The hacker who owns the asset.
             asset (Asset): The asset object to be transferred.
         """
-        # Validate if hacker is an instance of Hacker
-        if not isinstance(hacker, Hacker):
-            print(f'Invalid hacker object!')
         # Validate if asset is an instance of Asset
-        elif not isinstance(asset, Asset):
+        if not isinstance(asset, Asset):
             print(f'Invalid asset object!')
         # Check if the hacker actually has this asset in their inventory
         elif asset in hacker.inventory:
@@ -165,23 +161,20 @@ class Rig:
             # Display a message if Hacker doesn't have this asset
             print(f'Hacker does not have {asset.name} asset!')
 
-    def release_asset(self, hacker: Hacker, asset: Asset) -> None:
+    def release_asset(self, hacker, asset: Asset) -> None:
         """
         Release an asset from the rig's storage to the hacker's inventory.
 
         This method transfers a specified asset from a rig's storage to a hacker's inventory
         but only if the asset is not encrypted. Encrypted assets cannot be released until decrypted.
-        The method also validates that both the hacker and asset are valid objects.
+        The method also validates that the asset are valid objects.
 
         Args:
             hacker (Hacker): The hacker who will receive the asset.
             asset (Asset): The asset object to be transferred.
         """
-        # Validate if hacker is an instance of Hacker
-        if not isinstance(hacker, Hacker):
-            print('Invalid hacker object!')
         # Validate if asset is an instance of Asset
-        elif not isinstance(asset, Asset):
+        if not isinstance(asset, Asset):
             print('Invalid asset object!')
         # Check if the asset exists in the rig's storage
         elif asset in self.__storage:
@@ -226,7 +219,7 @@ class Rig:
         else:
             return f'Damaged (Level {self.__upgrade_level})'
 
-    def __str__(self):
+    def __str__(self) -> str:
         """
         Returns a string representation of the rig, including its name,
         condition, upgrade level, and stored assets.
