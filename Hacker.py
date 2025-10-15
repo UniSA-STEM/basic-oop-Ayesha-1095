@@ -62,19 +62,30 @@ class Hacker:
     # ==================================== Methods ==========================================================
     def acquire_a_rig(self, rig: Rig = None) -> None:
         """
-        This method allows the hacker to get a rig, which costs one CryptoToken.
-        If the acquisition is successful, it will display a message announcing the rig's activation.
+        Acquire a rig by taking one CryptoToken from the hacker's inventory.
+
+        If a rig object is passed in it will be used, otherwise a default Rig is created
+        with the hacker's name. If the hacker already has a rig, the method prints a
+        message and does nothing. On successful acquisition the method removes one
+        CryptoToken from inventory, assigns the rig to the hacker, and prints a
+        confirmation message.
+
+        Args:
+            rig (Rig): The hacker's rig, if they already have one. Default is None.
         """
         # If hacker already has a rig, display a message
         if self.__rig:
             print('Already have a rig')
         else:
-            # Check for CrytoToken in inventory
+            # Check for CryptoToken in inventory
             crypto_token = None
+            found = False  # Flag to stop searching once a CryptoToken is found
             for asset in self.__inventory:
-                if isinstance(asset, Asset) and asset.name == 'CryptoToken':
-                    crypto_token = asset
-            # Check if CryptoToken was found
+                # Only check until we find the first CryptoToken
+                if not found and isinstance(asset, Asset) and asset.name == 'CryptoToken':
+                    crypto_token = asset  # Store the found CryptoToken
+                    found = True  # Set flag to True to prevent checking further assets
+            # Check if CryptoToken is found, print a message
             if crypto_token is None:
                 print('No CryptoToken found in the inventory')
             else:
@@ -83,6 +94,75 @@ class Hacker:
                 # If no rig provided or wrong type, create default rig
                 if not isinstance(rig, Rig):
                     rig = Rig(self.__name + '-Rig')  # Create default rig if none provided
-                # Assign rig to hacker
+                # Assign rig to hacker to the hacker and confirm with message
                 self.__rig = rig
-                print('Rig activated: ' + rig.get_name())
+                print('Rig activated: ' + rig.name)
+
+    def launch_data_spike(self, target_rig):
+        """
+        Launch a data spike at a target rig.
+
+        Consume one Data Spike from the hacker's rig storage and apply a hit to the
+        target rig (calls target_rig.take_hit()). Each hit increases the target's
+        damage. If the target becomes broken, print a message telling the hacker they
+        can extract unsecured assets (extraction is a separate method).
+
+        Args:
+            target_rig (Rig): The hacker's rig, if they already have one.
+        """
+        # Check if the hacker has a rig. If not, return a message
+        if not self.__rig:
+            return 'No rig to launch attack!'
+
+        # Check if the target is a rig. If not, return a message
+        if not isinstance(target_rig, Rig):
+            return 'Invalid target rig!'
+
+        # Check the trace level. If it higher than the threshold, return a message
+        if self.__trace_level > 5:
+            return 'Trace level too high, cannot launch attack until reduce.'
+
+        # Find a Data Spike in attacker's rig storage
+        data_spike = None
+        found = False  # Flag to stop searching once a CryptoToken is found
+        for asset in self.__rig.storage:
+            if not found and isinstance(asset, Asset) and asset.name == 'Data Spike':
+                data_spike = asset  # Store the found Data Spike
+                found = True  # Set flag to True to prevent checking further assets
+
+        # If there is no Data Spike, return a message
+        if data_spike is None:
+            return 'No Data Spike in the rig\'s storage!'
+
+        # Consume the Data Spike and perform attack
+        self.__rig.storage.remove(data_spike)
+        print('Data Spike launched at', target_rig.name)
+        # Call take_hit() from Rig's class
+        target_rig.take_hit()
+        # Increase trace level and display it
+        self.__trace_level += 1
+        print('Trace level increased to', self.__trace_level)
+        # If taget broken, display a message to inform hacker
+        if target_rig.broken_state:
+            print(f'Target rig {target_rig.name} is broken - you can extract unsecured assets using a Removable Drive.')
+
+    def extract_unsecured_assets(self, target_rig):
+        pass
+
+    def encrypt_asset(self):
+        pass
+
+    def decrypt_asset(self):
+        pass
+
+    def store_asset(self):
+        pass
+
+    def retrieve_asset(self):
+        pass
+
+    def scan_inventory(self):
+        pass
+
+    def __str__(self):
+        pass
