@@ -6,6 +6,8 @@ ID: 110481368
 Username: SIDAY032
 This is my own work as defined by the University's Academic Misconduct Policy.
 """
+from Asset import Asset
+from Rig import Rig
 
 
 class Hacker:
@@ -22,7 +24,7 @@ class Hacker:
         __trace_level (int): The hacker's exposure level to being traced.
     """
 
-    def __init__(self, name, rig=None):
+    def __init__(self, name: str, rig=None) -> None:
         """
         Initializes a Hacker object with a name, one CryptoToken in inventory,
         no rig by default, and a trace level of 0.
@@ -32,21 +34,23 @@ class Hacker:
             rig (Rig): The hacker's rig, if they already have one. Default is None.
         """
         self.__name = name
-        self.__inventory = ['CryptoToken']  # Hacker starts with one CryptoToken in their inventory
+        self.__inventory = [
+            Asset('CryptoToken', 'Used to acquire or repair rigs.')
+        ]  # Hacker starts with one CryptoToken in their inventory
         self.__rig = rig  # Initially, the hacker has no rig (None)
         self.__trace_level = 0  # Starts at 0
 
     # ===================================== Getter methods ================================================
-    def get_name(self):
+    def get_name(self) -> str:
         return self.__name
 
-    def get_inventory(self):
+    def get_inventory(self) -> list:
         return self.__inventory
 
     def get_rig(self):
         return self.__rig
 
-    def get_trace_level(self):
+    def get_trace_level(self) -> int:
         return self.__trace_level
 
     # ==================================== Properties ======================================================
@@ -56,7 +60,7 @@ class Hacker:
     trace_level = property(get_trace_level)
 
     # ==================================== Methods ==========================================================
-    def acquire_a_rig(self, rig=None):
+    def acquire_a_rig(self, rig: Rig = None) -> None:
         """
         This method allows the hacker to get a rig, which costs one CryptoToken.
         If the acquisition is successful, it will display a message announcing the rig's activation.
@@ -64,13 +68,21 @@ class Hacker:
         # If hacker already has a rig, display a message
         if self.__rig:
             print('Already have a rig')
-
-        # If a CryptoToken exists in inventory, use it to acquire the rig
-        elif 'CryptoToken' in self.__inventory:
-            self.__inventory.remove('CryptoToken')  # Remove one CryptoToken
-            self.__rig = rig  # Assign the passed in rig (or None if not provided)
-            print('Rig activated')
-
-        # If no CryptoToken is found, display a message
         else:
-            print('No CryptoToken in the inventory')
+            # Check for CrytoToken in inventory
+            crypto_token = None
+            for asset in self.__inventory:
+                if isinstance(asset, Asset) and asset.name == 'CryptoToken':
+                    crypto_token = asset
+            # Check if CryptoToken was found
+            if crypto_token is None:
+                print('No CryptoToken found in the inventory')
+            else:
+                # If found remove it from inventory
+                self.__inventory.remove(crypto_token)
+                # If no rig provided or wrong type, create default rig
+                if not isinstance(rig, Rig):
+                    rig = Rig(self.__name + '-Rig')  # Create default rig if none provided
+                # Assign rig to hacker
+                self.__rig = rig
+                print('Rig activated: ' + rig.get_name())
