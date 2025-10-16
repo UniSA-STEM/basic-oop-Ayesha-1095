@@ -27,94 +27,189 @@ class Rig:
         __upgrade_level (int): The upgrade level applied to the rig.
     """
 
+    # ===================================== Initialization ============================================================
     def __init__(self, name: str, damage_counter: int = 0, broken_state: bool = False, upgrade_level: int = 0) -> None:
         """
-        Initialize a Rig object with its name, storage, damage counter,
-        broken state, and upgrade level.
+        Initializes a Rig object.
+
+        Initializes the rig with its name, starting assets in storage, damage,
+        broken state, and upgrade level. All attributes are set via their properties.
+
+        Args:
+            name (str): The name of the rig.
+            damage_counter (int): The initial damage taken by the rig. Default is 0.
+            broken_state (bool): The initial broken status of the rig. Default is False.
+            upgrade_level (int): The initial upgrade level of the rig. Default is 0.
         """
-        self.__name = name
+        # Assign attributes using property setters
+        self.name = name
+        # Initialize storage with starting assets
         self.__storage = [
             Asset('Data Spike', 'Used in battles'),
             Asset('Data Spike', 'Used in battles'),
             Asset('Removable Drive', 'Used for extraction of assets')
         ]  # Starting assets
-        self.__damage_counter = damage_counter  # Tracks rig damage
-        self.__broken_state = broken_state  # True if broken
-        self.__upgrade_level = upgrade_level  # Upgrade level of rig
+        self.damage_counter = damage_counter  # Tracks rig damage
+        self.broken_state = broken_state  # True if broken
+        self.upgrade_level = upgrade_level  # Upgrade level of rig
 
-    # ======================= Getter methods ===============================================
-    def get_name(self) -> str:
+    # ======================= Private Getter methods ===============================================
+    # These methods are private and accessed only via the public properties.
+    def __get_name(self) -> str:
+        """Returns the name of the rig."""
         return self.__name
 
-    def get_storage(self) -> list:
+    def __get_storage(self) -> list:
+        """Returns the list of assets stored in this rig."""
         return self.__storage
 
-    def get_damage_counter(self) -> int:
+    def __get_damage_counter(self) -> int:
+        """Returns the number of hits the rig has taken."""
         return self.__damage_counter
 
-    def get_broken_state(self) -> bool:
+    def __get_broken_state(self) -> bool:
+        """Returns the broken status of the rig (True if broken)."""
         return self.__broken_state
 
-    def get_upgrade_level(self) -> int:
+    def __get_upgrade_level(self) -> int:
+        """Returns the upgrade level applied to the rig."""
         return self.__upgrade_level
 
+    # =========================== Private Setter Methods ===========================================
+    # These methods are private and accessed only via the public properties.
+    def __set_name(self, name: str) -> None:
+        """
+        Sets the name of the rig.
+
+        Args:
+            name (str): The new name for the rig.
+
+        Returns:
+            None: Prints an error if not valid.
+        """
+        # Validate if the input is a string
+        if isinstance(name, str) and name:
+            self.__name = name
+        else:
+            print('Error: The name must be a non empty string!')
+
+    def __set_damage_counter(self, damage_counter: int) -> None:
+        """
+        Sets the damage counter of the rig.
+
+        Args:
+            damage_counter (int): The new damage value (must be non-negative).
+
+        Returns:
+            None: Prints an error if not valid.
+        """
+        # Validate if the input is an integer and greater than 0
+        if isinstance(damage_counter, int) and damage_counter >= 0:
+            self.__damage_counter = damage_counter
+        else:
+            print('Error: The damage counter must be a non negative integer!')
+
+    def __set_broken_state(self, state: bool) -> None:
+        """
+        Sets the broken state of the rig.
+
+        Args:
+            state (bool): The new broken state (True or False).
+
+        Returns:
+            None: Prints an error if not valid.
+        """
+        # Validate if the input is a boolean
+        if isinstance(state, bool):
+            self.__broken_state = state
+        else:
+            print('Error: The broken state must be a boolean (True/False).')
+
+    def __set_upgrade_level(self, level: int) -> None:
+        """
+        Sets the upgrade level of the rig.
+
+        Args:
+            level (int): The new upgrade level (must be positive integer).
+
+        Returns:
+            None: Prints an error if not valid.
+        """
+        # Validate if the input is positive integer.
+        if isinstance(level, int) and level >= 0:
+            self.__upgrade_level = level
+        else:
+            print('Error: The upgrade level must be a non negative integer!')
+
     # ============================ Properties ===============================================
-    name = property(get_name)
-    storage = property(get_storage)
-    damage_counter = property(get_damage_counter)
-    broken_state = property(get_broken_state)
-    upgrade_level = property(get_upgrade_level)
+    # Properties provide the public interface to the private attributes
+    name = property(__get_name, __set_name)
+    storage = property(__get_storage, )  # Setter included for initial/full replacement use
+    damage_counter = property(__get_damage_counter, __set_damage_counter)
+    broken_state = property(__get_broken_state, __set_broken_state)
+    upgrade_level = property(__get_upgrade_level, __set_upgrade_level)
 
     # ============================= Methods ==================================================
     def repair_damage(self) -> None:
         """
         Repairs the rig if it has any damage.
-        Reset damage_counter to 0 and broken_state to False.
-        If rig is not damaged, display a message.
+
+        Resets damage_counter to 0 and broken_state to False.
+        If the rig is not damaged, it displays a message.
+
+        Returns:
+            None
         """
-        # Check if damage is greater than 0
-        if self.__damage_counter > 0:
-            self.__damage_counter = 0  # Reset damage_counter to 0
-            self.__broken_state = False  # Set broken_state to False
-            print(f'{self.__name} repaired successfully.')
+        #  Check damage OR broken state to ensure a full repair
+        if self.damage_counter > 0 or self.broken_state:
+            self.damage_counter = 0  # Reset damage_counter to 0
+            self.broken_state = False  # Set broken_state to False
+            print(f'{self.name} repaired successfully.')
         else:
             print('No repair needed')  # Display a message if not damaged
 
     def upgrade_rig(self) -> None:
         """
-        Increases the rig's upgrade level when a Hardware Patch is used.
-        Upgrading affects how much damage the rig can take in battles
-        and the amount of assets it can store.
+        Increases the rig's upgrade level.
+
+        The upgrade level is increased by 1. This affects
+        the maximum hits the rig can take before breaking (take_hit).
+
+        Returns:
+            None
         """
-        self.__upgrade_level += 1  # Increase the upgrade level by 1
-        print(f'{self.__name} upgraded to level {self.__upgrade_level}')  # Show the new level
+        self.upgrade_level += 1  # Increase the upgrade level by 1
+        print(f'{self.name} upgraded to level {self.upgrade_level}')  # Show the new level
 
     def take_hit(self) -> None:
         """
-        Each hit increases damage by 1.
-        The number of hits a rig can take before breaking depends on its upgrade level.
-         For example:
-            Level 0 = breaks after 2 hits
-            Level 1 = breaks after 3 hits
-            Level 2 = breaks after 4 hits, etc.
+        Increases the damage counter by 1 and checks if the rig is broken.
+
+        The maximum hits is calculated as (2 + upgrade_level). If damage reaches or
+        exceeds this limit, the broken_state is set to True.
+
+        Returns:
+            None
         """
-        self.__damage_counter += 1  # Increase damage counter by 1
-        max_hits = 2 + self.__upgrade_level  # Calculate limit based on level
+        self.damage_counter += 1  # Increase damage counter by 1
+        max_hits = 2 + self.upgrade_level  # Calculate limit based on level
 
         # Check if rig has taken enough damage to be broken
-        if self.__damage_counter >= max_hits:
-            self.__broken_state = True  # Set the rig as broken
-            print(f'{self.__name} has been broken!')
+        if self.damage_counter >= max_hits:
+            self.broken_state = True  # Set the rig as broken
+            print(f'{self.name} has been broken!')
         else:
-            print(f'{self.__name} took a hit {self.__damage_counter}/{max_hits}')
+            print(f'{self.name} took a hit {self.damage_counter}/{max_hits}')
 
     def generate_asset(self) -> None:
         """
         Generates a new asset randomly and adds it to the rig's storage.
 
-        The rig does not control the type of asset generated.
-        Every time this method is called, it will pick one asset randomly
-        from the possible assets list and store it in the rig's storage.
+        A random Asset object is selected from a predefined list and appended to
+        the rig's storage list.
+
+        Returns:
+            None
         """
         # The list of possible Asset object the rig can generate
         possible_assets = [
@@ -127,7 +222,7 @@ class Rig:
         asset = random.choice(possible_assets)
 
         # Add the new asset to the rig's storage
-        self.__storage.append(asset)
+        self.storage.append(asset)
 
         # Print a message to confirm
         print(f'Rig generated asset: {asset.name}')
@@ -136,13 +231,15 @@ class Rig:
         """
         Store an asset from the hacker's inventory into the rig.
 
-        This method transfers a specified asset from a hacker's inventory to the rig's storage,
-        but only if the asset is not encrypted. Encrypted assets cannot be stored until decrypted.
-        The method also validates that the asset are valid objects.
+        Validates the asset object, ensures it is in the hacker's inventory, and confirms
+        it is not encrypted before transferring it to the rig's storage. Requires a Hacker
+        object for access to inventory.
 
         Args:
-            hacker (Hacker): The hacker who owns the asset.
+            hacker: The hacker object who owns the asset.
             asset (Asset): The asset object to be transferred.
+        Returns:
+            None: Prints a message describing the outcome.
         """
         # Validate if asset is an instance of Asset
         if not isinstance(asset, Asset):
@@ -152,7 +249,7 @@ class Rig:
             # Only allow storing if the asset is not encrypted
             if not asset.encrypted:
                 hacker.inventory.remove(asset)  # Remove asset from hacker inventory
-                self.__storage.append(asset)  # Add asset to rig storage
+                self.storage.append(asset)  # Add asset to rig storage
                 print(f'{asset.name} stored in rig!')
             else:
                 # Display a message if asset is encrypted that it cannot be transferred
@@ -163,26 +260,29 @@ class Rig:
 
     def release_asset(self, hacker, asset: Asset) -> None:
         """
-        Release an asset from the rig's storage to the hacker's inventory.
+        Release an unencrypted asset from the rig's storage to the hacker's inventory.
 
-        This method transfers a specified asset from a rig's storage to a hacker's inventory
-        but only if the asset is not encrypted. Encrypted assets cannot be released until decrypted.
-        The method also validates that the asset are valid objects.
+        Validates the asset object, ensures it is in the rig's storage, and confirms
+        it is not encrypted before transferring it to the hacker's inventory.
+        It also prevents adding duplicates to the hacker's inventory list.
 
         Args:
-            hacker (Hacker): The hacker who will receive the asset.
+            hacker: The hacker object who will receive the asset.
             asset (Asset): The asset object to be transferred.
+
+        Returns:
+            None: Prints a message describing the outcome.
         """
         # Validate if asset is an instance of Asset
         if not isinstance(asset, Asset):
             print('Invalid asset object!')
         # Check if the asset exists in the rig's storage
-        elif asset in self.__storage:
+        elif asset in self.storage:
             # Only allow releasing if the asset is not encrypted
             if not asset.encrypted:
                 # Ensure the hacker does not already have this asset (avoid duplicates)
                 if asset not in hacker.inventory:
-                    self.__storage.remove(asset)  # Remove asset from rig storage
+                    self.storage.remove(asset)  # Remove asset from rig storage
                     hacker.inventory.append(asset)  # Add asset to hacker inventory
                     print(f'{asset.name} released to hacker!')  # Confirm the transfer
                 else:
@@ -208,42 +308,43 @@ class Rig:
             str: A string representing the rig's condition with its upgrade level included.
         """
         # Maximum hits the rig can take before breaking, depends on upgrade level
-        max_hits = 2 + self.__upgrade_level
+        max_hits = 2 + self.upgrade_level
         # Check if rig is broken or has reached/exceeded max hits
-        if self.__broken_state or self.__damage_counter >= max_hits:
-            return f'Broken (Level {self.__upgrade_level})'
+        if self.broken_state or self.damage_counter >= max_hits:
+            return f'Broken (Level {self.upgrade_level})'
         # Check if rig has no damage
-        elif self.__damage_counter == 0:
-            return f'Pristine (Level {self.__upgrade_level})'
+        elif self.damage_counter == 0:
+            return f'Pristine (Level {self.upgrade_level})'
         # Otherwise, rig has some damage but is still operational
         else:
-            return f'Damaged (Level {self.__upgrade_level})'
+            return f'Damaged (Level {self.upgrade_level})'
 
     def __str__(self) -> str:
         """
-        Returns a string representation of the rig, including its name,
-        condition, upgrade level, and stored assets.
+        Provides a string representation of the rig for display.
+
         Returns:
-            str: A multi-line string describing the rig's status and contents.
+            str: A string describing the rig's status, condition,
+                 upgrade level, and stored assets.
         """
         # Create a list to store asset names
         asset_names = []
 
         # Loop through each asset in storage and get its name
-        for asset in self.__storage:
+        for asset in self.storage:
             asset_names.append(asset.name)
 
-        # Check if storage is empty
-        if len(asset_names) == 0:
-            asset_str = 'No assets available'
-        else:
+        # Check for asset names, if the list is empty display a message
+        if asset_names:
             # Join the names with commas for display
             asset_str = ', '.join(asset_names)
+        else:
+            asset_str = 'No assets available'
 
         # Return the formatting string
         return (
-            f'Rig Name: {self.__name}\n'
+            f'Rig Name: {self.name}\n'
             f'Condition: {self.get_condition()}\n'
-            f'Upgrade Level: {self.__upgrade_level}\n'
+            f'Upgrade Level: {self.upgrade_level}\n'
             f'Stored Assets: {asset_str}\n'
         )

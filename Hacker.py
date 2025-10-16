@@ -17,13 +17,19 @@ class Hacker:
     assets, transfer items, and upgrade rigs. Performing risky actions increases the trace level,
     and exceeding a threshold may restrict certain abilities.
 
+    Class Attributes:
+        TRACE_THRESHOLD (int): The maximum trace level before restrictions apply (5).
+
     Attributes:
         __name (str): The hacker's name.
         __inventory (list): A list of digital assets the hacker owns.
         __rig (Rig): The hacker's associated rig, which can be upgraded.
         __trace_level (int): The hacker's exposure level to being traced.
     """
+    # ================================== Class Level Attributes ==========================================
+    TRACE_THRESHOLD = 5
 
+    # ===================================== Initialization ================================================
     def __init__(self, name: str, rig=None) -> None:
         """
         Initializes a Hacker object with a name, one CryptoToken in inventory,
@@ -33,35 +39,95 @@ class Hacker:
             name (str): The hacker's chosen name.
             rig (Rig): The hacker's rig, if they already have one. Default is None.
         """
-        self.__name = name
+        # Assign attributes using public properties, which call the private setters
+        self.name = name
+        self.rig = rig
+
+        # Initialize inventory with a starting asset
         self.__inventory = [
             Asset('CryptoToken', 'Used to acquire or repair rigs.')
-        ]  # Hacker starts with one CryptoToken in their inventory
-        self.__rig = rig  # Initially, the hacker has no rig (None)
-        self.__trace_level = 0  # Starts at 0
+        ]
 
-    # ===================================== Getter methods ================================================
-    def get_name(self) -> str:
+        # Initialize trace level using the property setter
+        self.trace_level = 0
+
+    # ===================================== Private Getter methods ================================================
+    # These methods are private and accessed only via the public properties.
+    def __get_name(self) -> str:
         """Returns the hacker's chosen name."""
         return self.__name
 
-    def get_inventory(self) -> list:
+    def __get_inventory(self) -> list:
         """Returns the hacker's inventory."""
         return self.__inventory
 
-    def get_rig(self):
+    def __get_rig(self):
         """Returns the hacker's associated rig."""
         return self.__rig
 
-    def get_trace_level(self) -> int:
+    def __get_trace_level(self) -> int:
         """Returns the hacker's exposure level to being traced."""
         return self.__trace_level
 
+    # ===================================== Private Setter methods ================================================
+    # These methods are private and accessed only via the public properties.
+    def __set_name(self, name: str) -> None:
+        """
+        Sets the hacker's name.
+
+        Args:
+        name (str): The new name for the hacker.
+
+        Returns:
+            None: Prints an error message if not valid.
+        """
+        # Validate if the input is a string and non-empty
+        if isinstance(name, str) and name:
+            self.__name = name
+        else:
+            # Print error message
+            print('Error: The name must be a non-empty string!')
+
+    def __set_rig(self, rig: Rig) -> None:
+        """
+        Sets the hacker's rig.
+
+        Args:
+            rig (Rig / None): The new Rig object to associate with the hacker, or None.
+
+        Returns:
+            None: Prints an error message if not valid.
+        """
+        # Validates if the rig is  either None or an instance of the Rig class
+        if rig is None or isinstance(rig, Rig):
+            self.__rig = rig
+        else:
+            # Print error message as requested
+            print('Error: Rig must be a Rig object or None.')
+
+    def __set_trace_level(self, level: int) -> None:
+        """
+        Sets the hacker's trace level.
+
+        Args:
+        level (int): The new trace level (must be non-negative).
+
+        Returns:
+        None: Prints an error message if not valid.
+        """
+        # Validate the type and ensures the level is not negative
+        if isinstance(level, int) and level >= 0:
+            self.__trace_level = level
+        else:
+            # Print error message
+            print('Error: Trace level must be a non-negative integer!')
+
     # ==================================== Properties ======================================================
-    name = property(get_name)
-    inventory = property(get_inventory)
-    rig = property(get_rig)
-    trace_level = property(get_trace_level)
+    # Properties provide the public interface for attribute accessed
+    name = property(__get_name, __set_name)
+    inventory = property(__get_inventory)  # Read only, as list manipulation is done via list methods
+    rig = property(__get_rig, __set_rig)
+    trace_level = property(__get_trace_level, __set_trace_level)
 
     # ==================================== Methods ==========================================================
     def acquire_a_rig(self, rig: Rig = None) -> str:
@@ -81,31 +147,35 @@ class Hacker:
             str: A message describing the outcome of the acquisition.
         """
         # If hacker already has a rig, display a message
-        if self.__rig:
+        if self.rig:
             return 'Already have a rig.'
 
+        # --- Flag based Search for CryptoToken ---
         # Search for CryptoToken in inventory
+        token_name = 'CryptoToken'  # Use a local variable to name the asset being searched for
         crypto_token = None
         found = False  # Flag to stop searching once a CryptoToken is found
-        for asset in self.__inventory:
+        for asset in self.inventory:
             # Only check until we find the first CryptoToken
-            if not found and isinstance(asset, Asset) and asset.name == 'CryptoToken':
+            if not found and isinstance(asset, Asset) and asset.name == token_name:
                 crypto_token = asset  # Store the found CryptoToken
                 found = True  # Set flag to True to prevent checking further assets
+        # -----------------------------------------
 
         # Check if CryptoToken is found, print a message
         if crypto_token is None:
-            return 'No CryptoToken found in the inventory.'
+            return f'No {token_name} found in the inventory.'
 
         # If found remove it from inventory
-        self.__inventory.remove(crypto_token)
+        self.inventory.remove(crypto_token)
 
-        # If no rig provided or wrong type, create default rig
+        # Create a default rig if none was provided
         if not isinstance(rig, Rig):
-            rig = Rig(self.__name + '-Rig')  # Create default rig if none provided
-        # Assign rig to hacker to the hacker and confirm with message
-        self.__rig = rig
-        return f'Rig activated: {rig.name}. CryptoToken consumed from inventory.'
+            rig = Rig(self.name + '-Rig')  # Create default rig if none provided
+
+        # Assign rig to the hacker and confirm with message
+        self.rig = rig
+        return f'Rig activated: {self.rig.name}. {token_name} consumed from inventory.'
 
     def launch_data_spike(self, target_rig: Rig) -> str:
         """
@@ -123,7 +193,7 @@ class Hacker:
             str: error message on failure, or a success message on success.
         """
         # Check if the hacker has a rig. If not, return a message
-        if not self.__rig:
+        if not self.rig:
             return 'No rig to launch attack!'
 
         # Check if the target is a rig. If not, return a message
@@ -131,35 +201,38 @@ class Hacker:
             return 'Invalid target rig!'
 
         # Check the trace level. If it higher than the threshold, return a message
-        if self.__trace_level > 5:
+        if self.trace_level > Hacker.TRACE_THRESHOLD:
             return 'Trace level too high, cannot launch attack until reduce.'
 
+        # --- Flag based Search for Data Spike ---
         # Find a Data Spike in attacker's rig storage
+        spike_name = 'Data Spike'  # Use a local variable to name the asset being searched for
         data_spike = None
         found = False  # Flag to stop searching once a CryptoToken is found
-        for asset in self.__rig.storage:
-            if not found and isinstance(asset, Asset) and asset.name == 'Data Spike':
+        for asset in self.rig.storage:
+            if not found and isinstance(asset, Asset) and asset.name == spike_name:
                 data_spike = asset  # Store the found Data Spike
                 found = True  # Set flag to True to prevent checking further assets
+        # ----------------------------------------
 
         # If there is no Data Spike, return a message
         if data_spike is None:
-            return 'No Data Spike in the rig\'s storage!'
+            return f'No {spike_name} in the rig\'s storage!'
 
         # Consume the Data Spike and perform attack
-        self.__rig.storage.remove(data_spike)
+        self.rig.storage.remove(data_spike)
         # Call take_hit() from Rig's class
         target_rig.take_hit()
         # Increase trace level and display it
-        self.__trace_level += 1
+        self.trace_level += 1
 
         # Return a clear message describing the result
         if target_rig.broken_state:
             return (f'Data Spike launched at {target_rig.name}.\n'
-                    f'Trace level increased to {self.__trace_level}.\n'
+                    f'Trace level increased to {self.trace_level}.\n'
                     f'Target rig {target_rig.name} is broken — you can extract unsecured assets using a Removable Drive.\n')
         else:
-            return f'Data Spike launched at {target_rig.name}. Trace level increased to {self.__trace_level}.\n'
+            return f'Data Spike launched at {target_rig.name}. Trace level increased to {self.trace_level}.\n'
 
     def extract_unsecured_assets(self, target_rig: Rig) -> str:
         """
@@ -177,7 +250,7 @@ class Hacker:
             str: error message on failure, or a success message listing extracted assets.
         """
         # Check if the hacker does not have a rig
-        if not self.__rig:
+        if not self.rig:
             return 'No rig to extract unsecured assets!'  # Return a message
 
         # Check if target rig is a Rig instance
@@ -189,21 +262,25 @@ class Hacker:
             # Return a message
             return f'Target rig {target_rig.name} is not broken! - cannot extract.'
 
+        # --- Flag-Based Search for Removable Drive ---
         # Find a Removable Drive in the hacker's rig storage
-        # stop after first found
-        # Set variable to none
+        drive_name = 'Removable Drive'  # Use a local variable to name the asset being searched for
         removable_drive = None
         # Flag to stop searching once a Removable Drive is found
         found = False
         for asset in self.__rig.storage:
             # stop after first removable drive found using flag
-            if not found and isinstance(asset, Asset) and asset.name == 'Removable Drive':
+            if not found and isinstance(asset, Asset) and asset.name == drive_name:
                 removable_drive = asset
                 found = True
+        # ---------------------------------------------
 
         # If no removable drive in attacker rig, cannot extract
         if removable_drive is None:
-            return 'No Removable Drive available!'  # Return a message
+            return f'No {drive_name} available!'  # Return a message
+
+        # Remove Removable Drive
+        self.rig.storage.remove(removable_drive)
 
         # Collect unencrypted assets from the target rig
         transfer_assets = []
@@ -211,29 +288,26 @@ class Hacker:
             if isinstance(asset, Asset) and not asset.encrypted:
                 transfer_assets.append(asset)
 
-        # Remove Removable Drive from the attacker's rig storage
-        self.__rig.storage.remove(removable_drive)
-        print('Removable drive consumed for extraction')
-
         # If nothing to extract, increase trace and report that the drive was consumed
         if not transfer_assets:
-            self.__trace_level += 1
-            return (f'No unencrypted assets found for extraction from {target_rig.name}\n'
-                    f'Trace level increased to {self.__trace_level}.\n')
+            self.trace_level += 1
+            return (f'Removable drive consumed for extraction.\n'
+                    f'No unencrypted assets found for extraction from {target_rig.name}.\n'
+                    f'Trace level increased to {self.trace_level}.')
 
         # Move all unencrypted assets to the hacker's inventory
-        extracted_assets = []
+        extracted_assets_names = []
         for asset in transfer_assets:
-            if asset in target_rig.storage:  # Double check
-                target_rig.storage.remove(asset)
-                self.__inventory.append(asset)
-                extracted_assets.append(asset)
+            # Move the asset by removing it from target storage and appending to hacker inventory
+            target_rig.storage.remove(asset)
+            self.inventory.append(asset)
+            extracted_assets_names.append(asset)
 
         # Increase trace level by 1 and inform
-        self.__trace_level += 1
+        self.trace_level += 1
         return (f'Removable drive consumed for extraction.\n'
-                f'Extracted assets: {extracted_assets}.\n'
-                f'Trace level increased to {self.__trace_level}.')
+                f'Extracted assets: {extracted_assets_names}.\n'
+                f'Trace level increased to {self.trace_level}.')
 
     def encrypt_asset(self):
         pass
