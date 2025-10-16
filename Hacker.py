@@ -309,10 +309,61 @@ class Hacker:
                 f'Extracted assets: {extracted_assets_names}.\n'
                 f'Trace level increased to {self.trace_level}.')
 
-    def encrypt_asset(self):
-        pass
+    def encrypt_asset(self, target_asset: Asset) -> str:
+        """
+        Encrypts a specified asset using a Security Chip from the rig's storage.
+
+        Args:
+            target_asset (Asset): The asset object in the hacker's inventory to encrypt.
+
+        Returns:
+            str: A message describing the outcome (success or failure).
+        """
+        # Validate if the target asset is an Asset instance, if not show a message.
+        if not isinstance(target_asset, Asset):
+            return 'Error: Invalid asset type!'
+
+        # Check if the target asset is encrypted, if yes show a message.
+        if target_asset.encrypted is True:
+            return f'{target_asset.name} is already encrypted!'
+
+        # if no active rig is found, show a message.
+        if self.rig is None:
+            return 'Error: Cannot encrypt without an active rig.'
+
+        # Check if the target asset is in either location.
+        # If it's in neither, show an error.
+        if target_asset not in self.inventory and target_asset not in self.rig.storage:
+            return 'Error: Asset not found in inventory or rig storage!'
+
+        # --- Flag based Search for Security Chip ---
+        # Find a Security Chip in the hacker's rig storage
+        chip_name = 'Security Chip'
+        security_chip = None  # Use a local variable to name the asset being searched for
+        found = False  # Flag to stop searching once a Security Chip is found
+        for asset in self.rig.storage:
+            # stop after first Security Chip found using flag
+            if not found and isinstance(asset, Asset) and asset.name == chip_name:
+                security_chip = asset
+                found = True
+        # ---------------------------------------------
+
+        #  If no Security Chip found, show an error message
+        if security_chip is None:
+            return f'Error: {chip_name} not found in rig storage.'
+        # Consume the Security Chip
+        self.rig.storage.remove(security_chip)
+
+        # Change the asset's state to True
+        target_asset.encrypted = True
+
+        # Return Success output
+        return f'{target_asset.name} is  successfully encrypted. Security Chip is consumed.'
 
     def decrypt_asset(self):
+        pass
+
+    def upgrade_hacker_rig(self):
         pass
 
     def store_asset(self):
