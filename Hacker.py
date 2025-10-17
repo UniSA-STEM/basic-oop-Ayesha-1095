@@ -271,8 +271,8 @@ class Hacker:
         for asset in self.__rig.storage:
             # stop after first removable drive found using flag
             if not found and isinstance(asset, Asset) and asset.name == drive_name:
-                removable_drive = asset
-                found = True
+                removable_drive = asset  # Store the actual Asset object.
+                found = True  # Set flag to True to prevent checking further
         # ---------------------------------------------
 
         # If no removable drive in attacker rig, cannot extract
@@ -321,7 +321,7 @@ class Hacker:
             target_asset (Asset): The asset object in the hacker's inventory to encrypt.
 
         Returns:
-            str: A message describing the outcome (success or failure).
+            str: A message describing the outcome.
         """
         # Validate if the target asset is an Asset instance, if not show a message.
         if not isinstance(target_asset, Asset):
@@ -348,8 +348,8 @@ class Hacker:
         for asset in self.rig.storage:
             # stop after first Security Chip found using flag
             if not found and isinstance(asset, Asset) and asset.name == chip_name:
-                security_chip = asset
-                found = True
+                security_chip = asset  # Store the actual Asset object.
+                found = True  # Set flag to True to prevent checking further
         # ---------------------------------------------
 
         #  If no Security Chip found, show an error message
@@ -364,7 +364,7 @@ class Hacker:
         # Return Success output
         return f'{target_asset.name} is  successfully encrypted. {chip_name} is consumed.'
 
-    def decrypt_asset(self, target_asset):
+    def decrypt_asset(self, target_asset: Asset) -> str:
         """
         Decrypts a specified asset by consuming a Security Chip.
 
@@ -376,7 +376,7 @@ class Hacker:
             target_asset (Asset): The asset object to decrypt.
 
         Returns:
-            str: A message describing the outcome (success or failure).
+            str: A message describing the outcome.
         """
         # Validate if the target asset is an Asset instance, if not show a message.
         if not isinstance(target_asset, Asset):
@@ -403,8 +403,8 @@ class Hacker:
         for asset in self.rig.storage:
             # stop after first Security Chip found using flag
             if not found and isinstance(asset, Asset) and asset.name == chip_name:
-                security_chip = asset
-                found = True
+                security_chip = asset  # Store the actual Asset object.
+                found = True  # Set flag to True to prevent checking further
         # ---------------------------------------------
 
         #  If no Security Chip found, show an error message
@@ -419,7 +419,15 @@ class Hacker:
         # Return success output
         return f'{target_asset.name} is successfully decrypted. {chip_name} consumed.'
 
-    def upgrade_hacker_rig(self):
+    def upgrade_hacker_rig(self) -> str:
+        """
+        Upgrades the hacker's active rig by consuming a Hardware Patch from inventory.
+
+        This increases the rig's upgrade level, improving storage size and defense.
+
+        Returns:
+            str: A message describing the outcome.
+        """
         # Check if no active rig is found, show a message.
         if self.rig is None:
             return 'Error: Cannot upgrade without a rig!'
@@ -433,8 +441,8 @@ class Hacker:
         for asset in self.inventory:
             # stop after first Hardware Patch found using flag
             if not found and isinstance(asset, Asset) and asset.name == patch_name:
-                hardware_patch = asset
-                found = True
+                hardware_patch = asset  # Store the actual Asset object.
+                found = True  # Set flag to True to prevent checking further
         # ---------------------------------------------
         # Check if the patch isn't in the hacker's inventory
         if hardware_patch is None:
@@ -448,14 +456,111 @@ class Hacker:
         return (f'Rig successfully upgraded to level {self.rig.upgrade_level}.'
                 f'{patch_name} consumed from inventory.')
 
-    def store_asset(self):
-        pass
+    def store_asset(self, target_asset: Asset) -> str:
+        """
+        Transfers a specific asset from the hacker's inventory to the rig's storage.
 
-    def retrieve_asset(self):
-        pass
+        Encrypted assets cannot be transferred. Requires an active rig.
 
-    def scan_inventory(self):
-        pass
+        Args:
+            target_asset (Asset): The asset object to store.
 
-    def __str__(self):
-        pass
+        Returns:
+            str: A message describing the outcome.
+        """
+        # Validate if target asset is an instance of Asset, if not return an error
+        if not isinstance(target_asset, Asset):
+            return 'Error: Invalid asset type!'
+
+        # Check if no active rig is found, show a message.
+        if self.rig is None:
+            return 'Error: Cannot store without a rig!'
+
+        # Check if assets are encrypted, if yes, it cannot be transferred
+        if target_asset.encrypted is True:
+            return f'{target_asset.name} is encrypted and cannot be transferred'
+
+        # Check if asset is not in the inventory, and return a message
+        if target_asset not in self.inventory:
+            return f'{target_asset.name} is not found in inventory.'
+
+        # Remove the asset from the inventory and store it in the storage
+        self.inventory.remove(target_asset)
+        self.rig.storage.append(target_asset)
+
+        # Return success message
+        return f'{target_asset.name} successfully moved to rig storage.'
+
+    def retrieve_asset(self, target_asset: Asset) -> str:
+        """
+        Transfers a specific asset from the rig's storage to the hacker's inventory.
+
+        Encrypted assets cannot be transferred. Requires an active rig.
+
+        Args:
+            target_asset (Asset): The asset object to retrieve.
+
+        Returns:
+            str: A message describing the outcome.
+        """
+        # Validate if target asset is an instance of Asset, if not return an error
+        if not isinstance(target_asset, Asset):
+            return 'Error: Invalid asset type!'
+
+        # Check if no active rig is found, show a message.
+        if self.rig is None:
+            return 'Error: Cannot store without a rig!'
+
+        # Check if assets are encrypted, if yes, it cannot be stored
+        if target_asset.encrypted is True:
+            return f'{target_asset.name} is encrypted and cannot be transferred.'
+
+        # Check if asset is not in the storage, and return a message
+        if target_asset not in self.rig.storage:
+            return f'{target_asset.name} is not found in rig storage.'
+
+        # Remove the asset from the rig storage and add it to the inventory
+        self.rig.storage.remove(target_asset)
+        self.inventory.append(target_asset)
+
+        # Return success message
+        return f'{target_asset.name} is successfully move to inventory.'
+
+    def scan_inventory(self, asset_name: str) -> Asset:
+        """
+        Scans the hacker's inventory for an asset by name.
+        If found, the asset is removed from inventory and returned.
+
+        Args:
+            asset_name (str): The name of the asset to search for.
+
+        Returns:
+            Asset/None: The found Asset object, or None if not found.
+        """
+        # Validate if input is a non-empty string
+        if not isinstance(asset_name, str) or not asset_name:
+            print('Error: Invalid or empty asset name!')
+            return None
+
+        # Variable to hold the Asset object if found. Starts as None
+        asset_to_remove = None
+        # Flag to control the search loop.
+        found = False
+
+        # Look for the Asset by name in the inventory
+        for asset in self.inventory:
+            # Check if the asset is not found yet and the currect asset matched the name
+            if not found and asset.name == asset_name:
+                asset_to_remove = asset  # Store the actual Asset object
+                found = True  # Set flag to True to prevent checking further
+        # ---------------------------------------------
+
+        # Check if an asset object was successfully stored.
+        if asset_to_remove is not None:
+            # Remove the found Asset object from the inventory.
+            self.inventory.remove(asset_to_remove)
+            # Return the Asset object itself.
+            return asset_to_remove
+
+        # If the asset was not found after the loop completes, return None.
+        return None
