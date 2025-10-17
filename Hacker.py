@@ -301,7 +301,7 @@ class Hacker:
             # Move the asset by removing it from target storage and appending to hacker inventory
             target_rig.storage.remove(asset)
             self.inventory.append(asset)
-            extracted_assets_names.append(asset)
+            extracted_assets_names.append(asset.name)
 
         # Increase trace level by 1 and inform
         self.trace_level += 1
@@ -564,3 +564,55 @@ class Hacker:
 
         # If the asset was not found after the loop completes, return None.
         return None
+
+    def __str__(self):
+        """
+        Returns a comprehensive string representation of the Hacker object.
+
+        The output includes the hacker's name, current trace level, the status
+        and contents of the active rig, and the items held in the inventory.
+
+        Returns:
+            str: A formatted string detailing the hacker's current state.
+        """
+        # --- Define Basic Hacker Info ---
+        display_string = 'Hacker Profile: ' + self.name + '\n'
+        # Convert int to str for display!
+        display_string += 'Trace Level: ' + str(self.trace_level) + '\n'
+
+        # --- Define Rig Status ---
+        display_string += '===== Rig Status =====\n'
+
+        # Check if an active rig is present
+        if self.rig is not None:
+            display_string += 'Active Rig: ' + self.rig.name + '\n'
+            # Display the rig's upgrade level, converting the integer to a string.
+            display_string += 'Upgrade Level: ' + str(self.rig.upgrade_level) + '\n'
+            display_string += 'Rig Storage:\n'
+
+            # Check if the list is empty
+            if not self.rig.storage:
+                display_string += '  (Storage is Empty)\n'
+            else:
+                # Loop over the storage list to list each asset
+                for asset in self.rig.storage:
+                    # Display the asset name and its encryption status (converting boolean to string)
+                    display_string += '  - ' + asset.name + ' (Encrypted: ' + str(asset.encrypted) + ')\n'
+        else:
+            # Message if no rig is active
+            display_string += ('Active Rig: None (Acquire one to gain storage)\n')
+
+        # --- Define Inventory Contents ---
+        display_string += '====== Inventory =====\n'
+
+        # Check if the list is empty
+        if not self.inventory:
+            display_string += '(Inventory is Empty)\n'
+        else:
+            # Loop over the inventory list to list assets
+            for asset in self.inventory:
+                # Display the asset name and its encryption status.
+                display_string += '  - ' + asset.name + ' (Encrypted: ' + str(asset.encrypted) + ')\n'
+
+        # --- Return the Final String ---
+        return display_string
