@@ -313,6 +313,10 @@ class Hacker:
         """
         Encrypts a specified asset using a Security Chip from the rig's storage.
 
+        The asset must be unencrypted and can be located in either the hacker's
+        inventory or the rig's storage. A Security Chip is required from the rig's
+        storage for the operation.
+
         Args:
             target_asset (Asset): The asset object in the hacker's inventory to encrypt.
 
@@ -327,7 +331,7 @@ class Hacker:
         if target_asset.encrypted is True:
             return f'{target_asset.name} is already encrypted!'
 
-        # if no active rig is found, show a message.
+        # Check if no active rig is found, show a message.
         if self.rig is None:
             return 'Error: Cannot encrypt without an active rig.'
 
@@ -358,13 +362,91 @@ class Hacker:
         target_asset.encrypted = True
 
         # Return Success output
-        return f'{target_asset.name} is  successfully encrypted. Security Chip is consumed.'
+        return f'{target_asset.name} is  successfully encrypted. {chip_name} is consumed.'
 
-    def decrypt_asset(self):
-        pass
+    def decrypt_asset(self, target_asset):
+        """
+        Decrypts a specified asset by consuming a Security Chip.
+
+        The asset must be encrypted and can be located in either the hacker's
+        inventory or the rig's storage. A Security Chip is required from the rig's
+        storage for the operation.
+
+        Args:
+            target_asset (Asset): The asset object to decrypt.
+
+        Returns:
+            str: A message describing the outcome (success or failure).
+        """
+        # Validate if the target asset is an Asset instance, if not show a message.
+        if not isinstance(target_asset, Asset):
+            return 'Error: Invalid asset type!'
+
+        # Check if the target asset is encrypted, if not yes show a message.
+        if target_asset.encrypted is False:
+            return f'{target_asset.name} is already decrypted!'
+
+        # Check if no active rig is found, show a message.
+        if self.rig is None:
+            return 'Error: Cannot decrypt without an active rig.'
+
+        # Check if the target asset is in either location.
+        # If it's in neither, show an error.
+        if target_asset not in self.inventory and target_asset not in self.rig.storage:
+            return 'Error: Asset not found in inventory or rig storage!'
+
+        # --- Flag based Search for Security Chip ---
+        # Find a Security Chip in the hacker's rig storage
+        chip_name = 'Security Chip'
+        security_chip = None  # Use a local variable to name the asset being searched for
+        found = False  # Flag to stop searching once a Security Chip is found
+        for asset in self.rig.storage:
+            # stop after first Security Chip found using flag
+            if not found and isinstance(asset, Asset) and asset.name == chip_name:
+                security_chip = asset
+                found = True
+        # ---------------------------------------------
+
+        #  If no Security Chip found, show an error message
+        if security_chip is None:
+            return f'Error: {chip_name} not found in rig storage.'
+        # Consume the Security Chip
+        self.rig.storage.remove(security_chip)
+
+        # Change the asset's state to True
+        target_asset.encrypted = False
+
+        # Return success output
+        return f'{target_asset.name} is successfully decrypted. {chip_name} consumed.'
 
     def upgrade_hacker_rig(self):
-        pass
+        # Check if no active rig is found, show a message.
+        if self.rig is None:
+            return 'Error: Cannot upgrade without a rig!'
+
+        # --- Flag based Search for Security Chip ---
+        # Find a Hardware Patch in the hacker's rig storage
+        patch_name = 'Hardware Patch'  # Use a separate string variable for the name
+        hardware_patch = None  # This variable will store the Asset object
+        found = False  # Flag to stop searching once a Hardware Patch is found
+
+        for asset in self.inventory:
+            # stop after first Hardware Patch found using flag
+            if not found and isinstance(asset, Asset) and asset.name == patch_name:
+                hardware_patch = asset
+                found = True
+        # ---------------------------------------------
+        # Check if the patch isn't in the hacker's inventory
+        if hardware_patch is None:
+            return f'Error: {patch_name} not found in inventory.'
+
+        # Consume the Hardware Patch from the inventory
+        self.inventory.remove(hardware_patch)
+
+        # Increase the rig upgrade level by calling the method from rig's class
+        self.rig.upgrade_rig()
+        return (f'Rig successfully upgraded to level {self.rig.upgrade_level}.'
+                f'{patch_name} consumed from inventory.')
 
     def store_asset(self):
         pass
