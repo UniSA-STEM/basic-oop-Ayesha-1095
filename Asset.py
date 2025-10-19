@@ -17,7 +17,7 @@ class Asset:
     Attributes:
         __name (str): The name of the asset.
         __description (str): A short explanation of what the asset does.
-        __encrypted (bool): True if the asset is encrypted, False otherwise.
+        encrypted (bool): True if the asset is encrypted, False otherwise.
     """
 
     def __init__(self, name: str, description: str, encrypted: bool = False) -> None:
@@ -53,7 +53,7 @@ class Asset:
         Sets the encryption state of the asset.
 
         Args:
-            ensrypt (bool): The new encryption state (True for encrypted, False for decrypted).
+            encrypt (bool): The new encryption state (True for encrypted, False for decrypted).
 
         Returns:
             None: Prints an error if validation fails.
@@ -65,6 +65,7 @@ class Asset:
             print('Error: The encryption must be a boolean (True/False).')
 
     # ============================= Properties ==============================================
+    # Used properties to manage these attributes, keeping the data safe and controlled
     name = property(__get_name)
     description = property(__get_description)
     encrypted = property(__get_encrypted, __set_encrypted)

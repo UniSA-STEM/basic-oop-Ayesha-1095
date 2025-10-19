@@ -213,9 +213,9 @@ class Rig:
         self.upgrade_level += 1  # Increase the upgrade level by 1
         self.max_storage += 2  # Increase storage capacity
         print(f'{self.name} upgraded to level {self.upgrade_level}.'
-              f'Max storage increased to {self.max_storage}')  # Show the new level
+              f'\nMax storage increased to {self.max_storage}')  # Show the new level
 
-    def take_hit(self) -> None:
+    def take_hit(self) -> str:
         """
         Increases the damage counter by 1 and checks if the rig is broken.
 
@@ -230,8 +230,7 @@ class Rig:
         """
         # If the rig is already broken, don't continue
         if self.broken_state:
-            print(f'{self.name} is already broken and cannot take more hits!')
-            return
+            return f'{self.name} is already broken and cannot take more hits!'
 
         self.damage_counter += 1  # Increase damage counter by 1
         max_hits = 2 + self.upgrade_level  # Calculate limit based on level
@@ -239,13 +238,13 @@ class Rig:
         # If damage reaches or passes the limit, the rig breaks
         if self.damage_counter >= max_hits:
             self.broken_state = True  # Set the rig as broken
-            print(f'{self.name} has been completely broken after {self.damage_counter} hits!')
+            return f'{self.name} has been completely broken after {self.damage_counter} hits!'
         # If one hit away from breaking, show critical warning
         elif self.damage_counter == max_hits - 1:
-            print(f'\n{self.name} is critically damaged! ({self.damage_counter}/{max_hits})')
+            return f'{self.name} is critically damaged! ({self.damage_counter}/{max_hits})'
         # Otherwise, still working fine
         else:
-            print(f'{self.name} took a hit ({self.damage_counter}/{max_hits}) — still operational.')
+            return f'{self.name} took a hit ({self.damage_counter}/{max_hits}) — still operational.'
 
     def generate_asset(self) -> None:
         """

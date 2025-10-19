@@ -164,7 +164,7 @@ class Hacker:
 
         # Check if CryptoToken is found, print a message
         if crypto_token is None:
-            return f'No {token_name} found in the inventory.'
+            return f'No {token_name} found in the inventory.\n'
 
         # If found remove it from inventory
         self.inventory.remove(crypto_token)
@@ -175,7 +175,7 @@ class Hacker:
 
         # Assign rig to the hacker and confirm with message
         self.rig = rig
-        return f'Rig activated: {self.rig.name}. {token_name} consumed from inventory.'
+        return f'Rig activated: {self.rig.name}. \n{token_name} consumed from inventory.'
 
     def launch_data_spike(self, target_rig: Rig) -> str:
         """
@@ -202,7 +202,7 @@ class Hacker:
 
         # Check the trace level. If it higher than the threshold, return a message
         if self.trace_level > Hacker.TRACE_THRESHOLD:
-            return 'Trace level too high, cannot launch attack until reduce.'
+            return 'Trace level too high, cannot attack.'
 
         # --- Flag based Search for Data Spike ---
         # Find a Data Spike in attacker's rig storage
@@ -217,7 +217,7 @@ class Hacker:
 
         # If there is no Data Spike, return a message
         if data_spike is None:
-            return f'No {spike_name} in the rig\'s storage!'
+            return f'!!!No {spike_name} in the rig storage!!!\n'
 
         # Consume the Data Spike and perform attack
         self.rig.storage.remove(data_spike)
@@ -226,13 +226,15 @@ class Hacker:
         # Increase trace level and display it
         self.trace_level += 1
 
-        # Return a clear message describing the result
+        # Combine into a short formatted message
+        msg = [f"- Data Spike launched at {target_rig.name}",
+               f"- Trace level: {self.trace_level}",
+               f"- Target Rig: {target_rig.get_condition()}"]
+
         if target_rig.broken_state:
-            return (f'Data Spike launched at {target_rig.name}.\n'
-                    f'Trace level increased to {self.trace_level}.\n'
-                    f'Target rig {target_rig.name} is broken — you can extract unsecured assets using a Removable Drive.\n')
-        else:
-            return f'Data Spike launched at {target_rig.name}. Trace level increased to {self.trace_level}.\n'
+            msg.append("! Target rig broken — extraction possible with a Removable Drive")
+
+        return "\n".join(msg)
 
     def extract_unsecured_assets(self, target_rig: Rig) -> str:
         """
@@ -277,7 +279,7 @@ class Hacker:
 
         # If no removable drive in attacker rig, cannot extract
         if removable_drive is None:
-            return f'No {drive_name} available!'  # Return a message
+            return f'!!!No {drive_name} available!!!'  # Return a message
 
         # Remove Removable Drive
         self.rig.storage.remove(removable_drive)
@@ -354,7 +356,7 @@ class Hacker:
 
         #  If no Security Chip found, show an error message
         if security_chip is None:
-            return f'Error: {chip_name} not found in rig storage.'
+            return f'Error: {chip_name} not found in rig storage.\n'
         # Consume the Security Chip
         self.rig.storage.remove(security_chip)
 
@@ -409,7 +411,7 @@ class Hacker:
 
         #  If no Security Chip found, show an error message
         if security_chip is None:
-            return f'Error: {chip_name} not found in rig storage.'
+            return f'Error: {chip_name} not found in rig storage.\n'
         # Consume the Security Chip
         self.rig.storage.remove(security_chip)
 
@@ -446,15 +448,14 @@ class Hacker:
         # ---------------------------------------------
         # Check if the patch isn't in the hacker's inventory
         if hardware_patch is None:
-            return f'Error: {patch_name} not found in inventory.'
+            return f'Error: {patch_name} not found in inventory.\n'
 
         # Consume the Hardware Patch from the inventory
         self.inventory.remove(hardware_patch)
 
         # Increase the rig upgrade level by calling the method from rig's class
         self.rig.upgrade_rig()
-        return (f'Rig successfully upgraded to level {self.rig.upgrade_level}.'
-                f'{patch_name} consumed from inventory.')
+        return f'{patch_name} consumed from inventory.\n'
 
     def store_asset(self, target_asset: Asset) -> str:
         """
@@ -524,7 +525,7 @@ class Hacker:
         self.inventory.append(target_asset)
 
         # Return success message
-        return f'{target_asset.name} is successfully move to inventory.'
+        return f'{target_asset.name} is successfully moved to inventory.'
 
     def scan_inventory(self, asset_name: str) -> Asset:
         """
@@ -576,34 +577,34 @@ class Hacker:
             str: A formatted string detailing the hacker's current state.
         """
         # --- Define Basic Hacker Info ---
-        display_string = 'Hacker Profile: ' + self.name + '\n'
+        display_string = 'Hacker Name: ' + self.name + '\n'
         # Convert int to str for display!
         display_string += 'Trace Level: ' + str(self.trace_level) + '\n'
 
         # --- Define Rig Status ---
-        display_string += '===== Rig Status =====\n'
+        display_string += '\n===== Rig Status =====\n'
 
         # Check if an active rig is present
         if self.rig is not None:
             display_string += 'Active Rig: ' + self.rig.name + '\n'
             # Display the rig's upgrade level, converting the integer to a string.
             display_string += 'Upgrade Level: ' + str(self.rig.upgrade_level) + '\n'
-            display_string += 'Rig Storage:\n'
+            display_string += '\n===== Rig Storage =====\n'
 
             # Check if the list is empty
             if not self.rig.storage:
-                display_string += '  (Storage is Empty)\n'
+                display_string += '(Storage is Empty)\n'
             else:
                 # Loop over the storage list to list each asset
                 for asset in self.rig.storage:
                     # Display the asset name and its encryption status (converting boolean to string)
-                    display_string += '  - ' + asset.name + ' (Encrypted: ' + str(asset.encrypted) + ')\n'
+                    display_string += '-' + asset.name + ' (Encrypted: ' + str(asset.encrypted) + ')\n'
         else:
             # Message if no rig is active
             display_string += ('Active Rig: None (Acquire one to gain storage)\n')
 
         # --- Define Inventory Contents ---
-        display_string += '====== Inventory =====\n'
+        display_string += '\n====== Inventory =====\n'
 
         # Check if the list is empty
         if not self.inventory:
@@ -612,7 +613,7 @@ class Hacker:
             # Loop over the inventory list to list assets
             for asset in self.inventory:
                 # Display the asset name and its encryption status.
-                display_string += '  - ' + asset.name + ' (Encrypted: ' + str(asset.encrypted) + ')\n'
+                display_string += '-' + asset.name + ' (Encrypted: ' + str(asset.encrypted) + ')\n'
 
         # --- Return the Final String ---
         return display_string
